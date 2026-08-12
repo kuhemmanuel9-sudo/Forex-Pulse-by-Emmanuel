@@ -26,7 +26,7 @@ The dashboard runs as a single HTML file. It does not require a backend, databas
 12. World trading session monitor
 13. Voice market briefing
 14. Installed browser voice selector
-15. Beginner mode with plain-English pair explanations
+15. Explain Mode with plain-English pair explanations
 16. Forex basics glossary
 17. Dark and light themes
 18. Dedicated mobile summary view
@@ -59,9 +59,9 @@ The risk score uses recent volatility, drawdown from the recent high, and unusua
 
 These calculations are intentionally transparent. They are designed to describe market conditions, not to promise returns.
 
-## Beginner Mode
+## Explain Mode
 
-Forex Pulse includes a plain-English layer for people who are new to forex. It explains what a pair means, what the exchange rate means, whether the base or quote currency appears stronger, and why the dashboard score should be treated as an educational indicator instead of a buy or sell instruction.
+Forex Pulse includes a plain-English layer for people who want quick context without forex jargon. It explains what a pair means, what the exchange rate means, whether the base or quote currency appears stronger, and why the dashboard score should be treated as an educational indicator instead of a buy or sell instruction.
 
 ## How To Run It
 
