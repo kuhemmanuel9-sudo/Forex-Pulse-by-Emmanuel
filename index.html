@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Forex Pulse is a foreign exchange analytics and decision support dashboard designed and developed by Emmanuel Kuh.">
+  <meta name="theme-color" content="#111412">
+  <title>Forex Pulse by Emmanuel Kuh</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111412;
+      --surface: #151a18;
+      --surface-soft: #1c2420;
+      --surface-strong: #26322c;
+      --text: #f5f7f2;
+      --muted: #a9b4ac;
+      --subtle: #748078;
+      --line: #334139;
+      --green: #28d17c;
+      --green-soft: rgba(40, 209, 124, 0.14);
+      --cyan: #48c6ef;
+      --cyan-soft: rgba(72, 198, 239, 0.13);
+      --amber: #f7b955;
+      --amber-soft: rgba(247, 185, 85, 0.15);
+      --red: #ef6461;
+      --red-soft: rgba(239, 100, 97, 0.15);
+      --violet: #9b8cff;
+      --blue: #6aa8ff;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.26);
+      --radius: 8px;
+      --focus: 0 0 0 3px rgba(72, 198, 239, 0.22);
+    }
+
+    [data-theme="light"] {
+      color-scheme: light;
+      --bg: #f5f7f4;
+      --surface: #ffffff;
+      --surface-soft: #edf3ef;
+      --surface-strong: #e2ebe6;
+      --text: #17201b;
+      --muted: #5d6a62;
+      --subtle: #7a877f;
+      --line: #d5dfd9;
+      --green-soft: rgba(22, 163, 74, 0.11);
+      --cyan-soft: rgba(2, 132, 199, 0.1);
+      --amber-soft: rgba(180, 83, 9, 0.11);
+      --red-soft: rgba(220, 38, 38, 0.1);
+      --shadow: 0 20px 70px rgba(31, 41, 36, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(72, 198, 239, 0.08), transparent 34%),
+        linear-gradient(235deg, rgba(40, 209, 124, 0.06), transparent 36%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 26%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: var(--cyan);
+    }
+
+    .screen-reader-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    .app-shell {
+      position: relative;
+      width: min(100% - 32px, 1500px);
+      margin: 0 auto;
+      padding: 18px 0 42px;
+    }
+
+    .app-shell::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 70%);
+    }
+
+    .app-header,
+    .top-strip,
+    .panel,
+    .rate-card,
+    .metric-card,
+    .session-card,
+    .strength-card,
+    .forecast-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(24, 28, 26, 0.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    [data-theme="light"] .app-header,
+    [data-theme="light"] .top-strip,
+    [data-theme="light"] .panel,
+    [data-theme="light"] .rate-card,
+    [data-theme="light"] .metric-card,
+    [data-theme="light"] .session-card,
+    [data-theme="light"] .strength-card,
+    [data-theme="light"] .forecast-card {
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .app-header {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      color: #07110c;
+      background: linear-gradient(135deg, var(--green), var(--cyan));
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 2.2vw, 2.2rem);
+      line-height: 1.08;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--muted);
+    }
+
+    .tagline {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .credit-line {
+      color: var(--subtle);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .header-actions,
+    .control-row,
+    .voice-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .button,
+    .chip,
+    .pill,
+    .select,
+    input {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      color: var(--text);
+      transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 13px;
+      font-weight: 800;
+    }
+
+    .button svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .button.primary {
+      border-color: var(--green);
+      background: linear-gradient(135deg, var(--green), var(--cyan));
+      color: #07110c;
+    }
+
+    .button.active {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .button.ghost {
+      background: transparent;
+    }
+
+    .button:hover,
+    .chip:hover,
+    .pill:hover {
+      border-color: var(--cyan);
+      transform: translateY(-1px);
+    }
+
+    .button:focus-visible,
+    .chip:focus-visible,
+    .select:focus-visible,
+    input:focus-visible {
+      outline: none;
+      box-shadow: var(--focus);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .select,
+    input {
+      padding: 0 12px;
+      outline: none;
+    }
+
+    .select {
+      min-width: 150px;
+    }
+
+    .status-line {
+      margin: 12px 0;
+      min-height: 24px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .disclaimer-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid rgba(247, 185, 85, 0.35);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--amber-soft), transparent 60%), var(--surface);
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .disclaimer-banner strong {
+      color: var(--amber);
+    }
+
+    .layout {
+      display: grid;
+      gap: 14px;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: 1.35fr repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+      padding: 12px;
+      background:
+        linear-gradient(135deg, rgba(72, 198, 239, 0.1), transparent 42%),
+      var(--surface);
+    }
+
+    .mobile-summary {
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mobile-summary .strip-cell {
+      background: linear-gradient(135deg, rgba(106, 168, 255, 0.11), var(--surface-soft));
+    }
+
+    .strip-cell {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      min-width: 0;
+    }
+
+    .strip-cell span,
+    .section-label,
+    .small-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .strip-cell strong {
+      display: block;
+      margin-top: 3px;
+      font-size: clamp(1.05rem, 1.8vw, 1.48rem);
+      line-height: 1.05;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+      gap: 14px;
+    }
+
+    .panel {
+      padding: 15px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin: 0;
+      line-height: 1.15;
+    }
+
+    .panel p {
+      margin: 4px 0 0;
+      color: var(--muted);
+    }
+
+    .converter-grid,
+    .watch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 900;
+    }
+
+    .converter-result {
+      margin-top: 12px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+    }
+
+    .converter-result strong {
+      display: block;
+      font-size: clamp(1.35rem, 3vw, 2.1rem);
+      line-height: 1.05;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.7fr);
+      gap: 14px;
+    }
+
+    .rate-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .rate-card,
+    .metric-card,
+    .session-card,
+    .strength-card,
+    .forecast-card {
+      padding: 12px;
+      box-shadow: none;
+      background: var(--surface-soft);
+    }
+
+    .rate-card {
+      text-align: left;
+    }
+
+    .rate-card.selected {
+      border-color: var(--green);
+      background: linear-gradient(135deg, var(--green-soft), var(--surface-soft));
+    }
+
+    .rate-card header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rate-card h3,
+    .metric-card h3,
+    .strength-card h3,
+    .forecast-card h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .rate-value {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.45rem;
+      line-height: 1.05;
+      font-weight: 900;
+    }
+
+    .change {
+      display: inline-flex;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+
+    .positive {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .negative {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .neutral {
+      color: var(--muted);
+      background: var(--surface-strong);
+    }
+
+    .score-good {
+      color: var(--green);
+    }
+
+    .score-watch {
+      color: var(--amber);
+    }
+
+    .score-risk {
+      color: var(--red);
+    }
+
+    .analysis-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .pair-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .pair-title strong {
+      display: block;
+      font-size: clamp(1.8rem, 4vw, 3.4rem);
+      line-height: 1;
+    }
+
+    .bias-pill {
+      padding: 7px 10px;
+      border-radius: var(--radius);
+      background: var(--cyan-soft);
+      color: var(--cyan);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric-card span,
+    .strength-card span,
+    .forecast-card span {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metric-card strong,
+    .strength-card strong,
+    .forecast-card strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 1.35rem;
+      line-height: 1.05;
+    }
+
+    .risk-bar {
+      height: 9px;
+      margin-top: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--surface-strong);
+    }
+
+    .risk-bar span {
+      display: block;
+      width: var(--risk-width, 0%);
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--amber), var(--red));
+    }
+
+    .chart-box {
+      height: 320px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+    }
+
+    .period-tabs {
+      display: inline-flex;
+      gap: 6px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+    }
+
+    .period-tabs .button {
+      min-height: 32px;
+      padding: 6px 10px;
+      border-color: transparent;
+      background: transparent;
+      font-size: 0.84rem;
+    }
+
+    .period-tabs .button.active {
+      border-color: var(--cyan);
+      background: var(--cyan-soft);
+      color: var(--cyan);
+    }
+
+    .strength-grid,
+    .session-grid,
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .session-card.open {
+      border-color: var(--green);
+      background: linear-gradient(135deg, var(--green-soft), var(--surface-soft));
+    }
+
+    .session-card.closed {
+      opacity: 0.78;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    td strong {
+      font-weight: 900;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .voice-panel {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(320px, 0.8fr);
+      gap: 14px;
+      border-color: rgba(40, 209, 124, 0.35);
+      background:
+        linear-gradient(135deg, rgba(40, 209, 124, 0.09), transparent 42%),
+        var(--surface);
+    }
+
+    .voice-brief {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      color: var(--muted);
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .method-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .method-list article {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+    }
+
+    .method-list strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(7, 12, 9, 0.74);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .method-modal {
+      width: min(100%, 720px);
+      max-height: min(680px, 90vh);
+      overflow: auto;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .method-modal header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .method-modal h2 {
+      margin: 0;
+    }
+
+    .method-modal p {
+      color: var(--muted);
+    }
+
+    .app-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 2px 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .empty-state {
+      padding: 18px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 1180px) {
+      .top-strip,
+      .rate-grid,
+      .strength-grid,
+      .session-grid,
+      .forecast-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .dashboard-grid,
+      .toolbar,
+      .voice-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        width: min(100% - 20px, 1500px);
+        padding-top: 10px;
+      }
+
+      .app-header {
+        grid-template-columns: 1fr;
+      }
+
+      .header-actions,
+      .control-row,
+      .voice-controls {
+        justify-content: flex-start;
+      }
+
+      .rate-grid,
+      .metric-grid,
+      .strength-grid,
+      .session-grid,
+      .forecast-grid,
+      .converter-grid,
+      .watch-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .top-strip {
+        display: none;
+      }
+
+      .mobile-summary {
+        display: grid;
+      }
+
+      .panel-header {
+        display: grid;
+      }
+
+      .chart-box {
+        height: 280px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      body {
+        font-size: 14px;
+      }
+
+      .brand {
+        align-items: flex-start;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+      }
+
+      .rate-grid,
+      .metric-grid,
+      .strength-grid,
+      .session-grid,
+      .forecast-grid,
+      .converter-grid,
+      .watch-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mobile-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .select,
+      input,
+      .button,
+      .period-tabs {
+        width: 100%;
+      }
+
+      .period-tabs {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">FX</div>
+        <div>
+          <h1>Forex Pulse</h1>
+          <p class="tagline">Foreign Exchange Analytics &amp; Decision Support</p>
+          <p class="credit-line">Designed &amp; Developed by Emmanuel Kuh</p>
+        </div>
+      </div>
+
+      <div class="header-actions" aria-label="Dashboard controls">
+        <span class="pill" id="lastUpdated">Waiting for rates</span>
+        <select class="select" id="dataMode" aria-label="Data source">
+          <option value="live">Live FX where available</option>
+          <option value="reference">Central bank reference</option>
+        </select>
+        <button class="button" id="voiceToggle" type="button" aria-pressed="false"><i data-lucide="volume-x"></i>Voice Off</button>
+        <button class="button" id="themeToggle" type="button"><i data-lucide="sun"></i>Light</button>
+        <button class="button primary" id="refreshButton" type="button"><i data-lucide="refresh-cw"></i>Refresh</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <div class="status-line" id="statusLine" role="status" aria-live="polite"></div>
+      <section class="disclaimer-banner" aria-label="Research disclaimer">
+        <span><strong>Research mode.</strong> For research and educational purposes. Not financial advice.</span>
+        <span id="dataStamp">Provider and timestamp will appear after rates load.</span>
+      </section>
+
+      <section class="top-strip" aria-label="Executive forex summary">
+        <div class="strip-cell">
+          <span>Data Source</span>
+          <strong id="execProvider">Loading</strong>
+        </div>
+        <div class="strip-cell">
+          <span>Leading Pair</span>
+          <strong id="execBestPair">--</strong>
+        </div>
+        <div class="strip-cell">
+          <span>Momentum</span>
+          <strong id="execOpportunity">--</strong>
+        </div>
+        <div class="strip-cell">
+          <span>Risk</span>
+          <strong id="execRisk">--</strong>
+        </div>
+        <div class="strip-cell">
+          <span>Market Session</span>
+          <strong id="execSession">--</strong>
+        </div>
+        <div class="strip-cell">
+          <span>Pairs Watched</span>
+          <strong id="execPairs">--</strong>
+        </div>
+      </section>
+
+      <section class="mobile-summary" id="mobileSummary" aria-label="Mobile forex summary">
+        <div class="strip-cell">
+          <span>Focus Pair</span>
+          <strong id="mobilePair">--</strong>
+        </div>
+        <div class="strip-cell">
+          <span>Momentum</span>
+          <strong id="mobileMomentum">--</strong>
+        </div>
+        <div class="strip-cell">
+          <span>Risk</span>
+          <strong id="mobileRisk">--</strong>
+        </div>
+        <div class="strip-cell">
+          <span>Session</span>
+          <strong id="mobileSession">--</strong>
+        </div>
+      </section>
+
+      <section class="toolbar" aria-label="Forex dashboard controls">
+        <article class="panel" aria-labelledby="converterTitle">
+          <div class="panel-header">
+            <div>
+              <h2 id="converterTitle">Currency Converter</h2>
+              <p>Convert across every currency returned by the active data source.</p>
+            </div>
+          </div>
+          <div class="converter-grid">
+            <div class="field">
+              <label for="convertAmount">Amount</label>
+              <input id="convertAmount" type="number" min="0" step="0.01" value="1000">
+            </div>
+            <div class="field">
+              <label for="convertFrom">From</label>
+              <select class="select" id="convertFrom"></select>
+            </div>
+            <div class="field">
+              <label for="convertTo">To</label>
+              <select class="select" id="convertTo"></select>
+            </div>
+            <div class="field">
+              <label for="pairSelect">Focus Pair</label>
+              <select class="select" id="pairSelect"></select>
+            </div>
+          </div>
+          <div class="converter-result" aria-live="polite">
+            <span class="small-label">Converted Value</span>
+            <strong id="conversionResult">--</strong>
+            <p id="conversionRate">Rate will appear after data loads.</p>
+          </div>
+        </article>
+
+        <article class="panel" aria-labelledby="watchTitle">
+          <div class="panel-header">
+            <div>
+              <h2 id="watchTitle">Add Pair</h2>
+              <p>Track a major pair or build a custom cross from loaded currencies.</p>
+            </div>
+          </div>
+          <div class="watch-grid">
+            <div class="field">
+              <label for="watchBase">Base</label>
+              <select class="select" id="watchBase"></select>
+            </div>
+            <div class="field">
+              <label for="watchQuote">Quote</label>
+              <select class="select" id="watchQuote"></select>
+            </div>
+          </div>
+          <div class="control-row" style="justify-content:flex-start;margin-top:12px;">
+            <button class="button primary" id="addPairButton" type="button"><i data-lucide="plus"></i>Add Pair</button>
+            <button class="button" id="resetPairsButton" type="button"><i data-lucide="rotate-ccw"></i>Reset Majors</button>
+          </div>
+          <p class="note">Risk and momentum scores use historical reference data. They describe market conditions, not trade instructions.</p>
+        </article>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel" aria-labelledby="ratesTitle">
+          <div class="panel-header">
+            <div>
+              <h2 id="ratesTitle">Global Rate Monitor</h2>
+              <p id="ratesCaption">Major forex pairs update from the selected free data source.</p>
+            </div>
+            <input id="pairFilter" type="search" placeholder="Filter pairs" aria-label="Filter pairs">
+          </div>
+          <div class="rate-grid" id="rateGrid"></div>
+        </article>
+
+        <article class="panel analysis-panel" aria-labelledby="analysisTitle">
+          <div class="pair-title">
+            <div>
+              <h2 id="analysisTitle">Pair Analytics</h2>
+              <p id="selectedPairName">Select a pair to inspect current conditions.</p>
+            </div>
+            <span class="bias-pill" id="biasPill">Neutral</span>
+          </div>
+          <strong id="selectedRate">--</strong>
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Momentum Score</span>
+              <strong id="opportunityScore">--</strong>
+              <div class="risk-bar"><span id="opportunityBar"></span></div>
+            </article>
+            <article class="metric-card">
+              <span>Risk</span>
+              <strong id="riskScore">--</strong>
+              <div class="risk-bar"><span id="riskBar"></span></div>
+            </article>
+            <article class="metric-card">
+              <span>Period Move</span>
+              <strong id="moveScore">--</strong>
+              <p id="moveText">--</p>
+            </article>
+          </div>
+          <div class="voice-brief" id="decisionText">Load rates to see the pair analytics brief.</div>
+        </article>
+      </section>
+
+      <section class="panel" aria-labelledby="chartTitle">
+        <div class="panel-header">
+          <div>
+            <h2 id="chartTitle">Pair History</h2>
+            <p id="chartCaption">Historical trend from free reference-rate data.</p>
+          </div>
+          <div class="period-tabs" role="group" aria-label="Chart period">
+            <button class="button" type="button" data-period="7D">7D</button>
+            <button class="button" type="button" data-period="30D">30D</button>
+            <button class="button" type="button" data-period="90D">90D</button>
+            <button class="button" type="button" data-period="1Y">1Y</button>
+          </div>
+        </div>
+        <div class="chart-box">
+          <canvas id="pairChart" role="img" aria-label="Pair history chart"></canvas>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="tableTitle">
+        <div class="panel-header">
+          <div>
+            <h2 id="tableTitle">Watchlist Analytics</h2>
+            <p>Sorted by momentum score with risk, trend, volatility, and bias.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Pair</th>
+                <th>Rate</th>
+                <th>1 Day</th>
+                <th>7 Day</th>
+                <th>Volatility</th>
+                <th>Risk</th>
+                <th>Momentum</th>
+                <th>Bias</th>
+              </tr>
+            </thead>
+            <tbody id="watchTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="strengthTitle">
+        <div class="panel-header">
+          <div>
+            <h2 id="strengthTitle">Currency Strength Heatmap</h2>
+            <p>Seven-day strength versus USD reference rates.</p>
+          </div>
+        </div>
+        <div class="strength-grid" id="strengthGrid"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="sessionTitle">
+        <div class="panel-header">
+          <div>
+            <h2 id="sessionTitle">World Trading Sessions</h2>
+            <p>Session windows are approximate UTC forex-market hours.</p>
+          </div>
+        </div>
+        <div class="session-grid" id="sessionGrid"></div>
+      </section>
+
+      <section class="panel voice-panel" aria-labelledby="voiceTitle">
+        <div>
+          <h2 id="voiceTitle">Voice Market Brief</h2>
+          <p>The voice brief explains the selected pair, recent movement, risk score, data source, and reasons for caution.</p>
+          <div class="voice-controls" style="justify-content:flex-start;margin-top:12px;">
+            <button class="button primary" id="speakBriefButton" type="button"><i data-lucide="volume-2"></i>Speak Brief</button>
+            <button class="button" id="testVoiceButton" type="button"><i data-lucide="audio-lines"></i>Test Voice</button>
+            <select class="select" id="voiceSelect" aria-label="Installed browser voice">
+              <option value="">Auto voice</option>
+            </select>
+          </div>
+        </div>
+        <div class="voice-brief">
+          <span class="section-label">Current Brief</span>
+          <p id="voiceBrief">Voice briefing will update after rates load.</p>
+          <p class="note" id="voiceNote">Voice uses the browser voices installed on this device.</p>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="forecastTitle">
+        <div class="panel-header">
+          <div>
+            <h2 id="forecastTitle">Analytics Methodology</h2>
+            <p>The scoring model is transparent so users can judge the market context themselves.</p>
+          </div>
+          <button class="button" id="openMethodButton" type="button"><i data-lucide="info"></i>How It Works</button>
+        </div>
+        <div class="forecast-grid">
+          <article class="forecast-card">
+            <span>Lower Risk</span>
+            <strong>Lower measured volatility</strong>
+            <p>Recent volatility and drawdown are relatively contained within the dashboard's historical scoring framework.</p>
+          </article>
+          <article class="forecast-card">
+            <span>Momentum</span>
+            <strong>Score over 72</strong>
+            <p>Recent direction, consistency, and volatility are aligned.</p>
+          </article>
+          <article class="forecast-card">
+            <span>Caution</span>
+            <strong>Risk over 65</strong>
+            <p>Recent movement is too unstable for a calm market label.</p>
+          </article>
+          <article class="forecast-card">
+            <span>Research Only</span>
+            <strong>No guarantees</strong>
+            <p>For research and educational purposes. Not financial advice.</p>
+          </article>
+        </div>
+      </section>
+
+      <footer class="app-footer">
+        <span>Forex Pulse. Designed and Developed by Emmanuel Kuh.</span>
+        <div class="footer-links">
+          <a href="https://kuhemmanuel9-sudo.github.io/Personal-Web/" target="_blank" rel="noopener noreferrer">Portfolio</a>
+          <a href="https://github.com/kuhemmanuel9-sudo" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="methodModal" hidden>
+    <section class="method-modal" role="dialog" aria-modal="true" aria-labelledby="methodTitle">
+      <header>
+        <div>
+          <h2 id="methodTitle">How It Works</h2>
+          <p>Forex Pulse uses simple, transparent calculations from recent exchange-rate history. The scores help describe conditions; they do not predict profit or tell anyone what to trade.</p>
+        </div>
+        <button class="button" id="closeMethodButton" type="button" aria-label="Close methodology"><i data-lucide="x"></i></button>
+      </header>
+      <div class="method-list">
+        <article>
+          <strong>Momentum Score</strong>
+          <p>Measures recent price movement, consistency, and broader trend context, then reduces the score when risk is elevated.</p>
+        </article>
+        <article>
+          <strong>Risk Score</strong>
+          <p>Uses recent volatility, drawdown from the recent high, and unusually large one-day movement to identify unstable conditions.</p>
+        </article>
+        <article>
+          <strong>Volatility</strong>
+          <p>Calculated from recent daily percentage changes so users can compare how noisy each pair has been.</p>
+        </article>
+        <article>
+          <strong>Consistency</strong>
+          <p>Checks how often recent daily movement agrees with the current trend direction.</p>
+        </article>
+        <article>
+          <strong>Data Source</strong>
+          <p>Live mode uses exchangerate.dev where available. Reference history uses Frankfurter API data and may not be a real-time dealing quote.</p>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const API = {
+        frankfurter: "https://api.frankfurter.dev/v2",
+        live: "https://api.exchangerate.dev/v1"
+      };
+
+      const STORAGE = {
+        theme: "fx_theme",
+        dataMode: "fx_data_mode",
+        pairs: "fx_pairs",
+        selectedPair: "fx_selected_pair",
+        period: "fx_chart_period",
+        voiceAlerts: "fx_voice_alerts",
+        voiceChoice: "fx_voice_choice"
+      };
+
+      const PERIOD_DAYS = {
+        "7D": 7,
+        "30D": 30,
+        "90D": 90,
+        "1Y": 365
+      };
+
+      const DEFAULT_PAIRS = [
+        "EUR/USD",
+        "GBP/USD",
+        "USD/JPY",
+        "USD/CHF",
+        "AUD/USD",
+        "USD/CAD",
+        "NZD/USD",
+        "EUR/GBP",
+        "EUR/JPY",
+        "GBP/JPY",
+        "AUD/JPY",
+        "USD/CNY"
+      ];
+
+      const FALLBACK_CURRENCIES = [
+        ["USD", "United States Dollar"],
+        ["EUR", "Euro"],
+        ["GBP", "British Pound Sterling"],
+        ["JPY", "Japanese Yen"],
+        ["CHF", "Swiss Franc"],
+        ["CAD", "Canadian Dollar"],
+        ["AUD", "Australian Dollar"],
+        ["NZD", "New Zealand Dollar"],
+        ["CNY", "Chinese Yuan"],
+        ["HKD", "Hong Kong Dollar"],
+        ["SGD", "Singapore Dollar"],
+        ["MXN", "Mexican Peso"],
+        ["BRL", "Brazilian Real"],
+        ["ZAR", "South African Rand"],
+        ["SEK", "Swedish Krona"],
+        ["NOK", "Norwegian Krone"],
+        ["DKK", "Danish Krone"],
+        ["PLN", "Polish Zloty"],
+        ["TRY", "Turkish Lira"],
+        ["INR", "Indian Rupee"],
+        ["KRW", "South Korean Won"],
+        ["AED", "United Arab Emirates Dirham"],
+        ["SAR", "Saudi Riyal"],
+        ["GHS", "Ghanaian Cedi"],
+        ["NGN", "Nigerian Naira"],
+        ["KES", "Kenyan Shilling"],
+        ["EGP", "Egyptian Pound"]
+      ].map(([code, name]) => ({ code, name }));
+
+      const state = {
+        theme: localStorage.getItem(STORAGE.theme) || "dark",
+        dataMode: localStorage.getItem(STORAGE.dataMode) || "live",
+        pairs: readJson(STORAGE.pairs, DEFAULT_PAIRS),
+        selectedPair: localStorage.getItem(STORAGE.selectedPair) || "EUR/USD",
+        period: localStorage.getItem(STORAGE.period) || "30D",
+        voiceAlerts: localStorage.getItem(STORAGE.voiceAlerts) === "true",
+        voiceChoice: localStorage.getItem(STORAGE.voiceChoice) || "",
+        currencies: FALLBACK_CURRENCIES,
+        usdRates: { USD: 1 },
+        history: [],
+        analytics: [],
+        sourceMeta: null,
+        chart: null,
+        lastVoiceKey: ""
+      };
+
+      const elements = {
+        html: document.documentElement,
+        statusLine: document.getElementById("statusLine"),
+        dataStamp: document.getElementById("dataStamp"),
+        lastUpdated: document.getElementById("lastUpdated"),
+        dataMode: document.getElementById("dataMode"),
+        voiceToggle: document.getElementById("voiceToggle"),
+        themeToggle: document.getElementById("themeToggle"),
+        refreshButton: document.getElementById("refreshButton"),
+        execProvider: document.getElementById("execProvider"),
+        execBestPair: document.getElementById("execBestPair"),
+        execOpportunity: document.getElementById("execOpportunity"),
+        execRisk: document.getElementById("execRisk"),
+        execSession: document.getElementById("execSession"),
+        execPairs: document.getElementById("execPairs"),
+        mobilePair: document.getElementById("mobilePair"),
+        mobileMomentum: document.getElementById("mobileMomentum"),
+        mobileRisk: document.getElementById("mobileRisk"),
+        mobileSession: document.getElementById("mobileSession"),
+        convertAmount: document.getElementById("convertAmount"),
+        convertFrom: document.getElementById("convertFrom"),
+        convertTo: document.getElementById("convertTo"),
+        conversionResult: document.getElementById("conversionResult"),
+        conversionRate: document.getElementById("conversionRate"),
+        pairSelect: document.getElementById("pairSelect"),
+        watchBase: document.getElementById("watchBase"),
+        watchQuote: document.getElementById("watchQuote"),
+        addPairButton: document.getElementById("addPairButton"),
+        resetPairsButton: document.getElementById("resetPairsButton"),
+        pairFilter: document.getElementById("pairFilter"),
+        rateGrid: document.getElementById("rateGrid"),
+        selectedPairName: document.getElementById("selectedPairName"),
+        selectedRate: document.getElementById("selectedRate"),
+        biasPill: document.getElementById("biasPill"),
+        opportunityScore: document.getElementById("opportunityScore"),
+        opportunityBar: document.getElementById("opportunityBar"),
+        riskScore: document.getElementById("riskScore"),
+        riskBar: document.getElementById("riskBar"),
+        moveScore: document.getElementById("moveScore"),
+        moveText: document.getElementById("moveText"),
+        decisionText: document.getElementById("decisionText"),
+        pairChart: document.getElementById("pairChart"),
+        chartCaption: document.getElementById("chartCaption"),
+        periodButtons: Array.from(document.querySelectorAll("[data-period]")),
+        watchTable: document.getElementById("watchTable"),
+        strengthGrid: document.getElementById("strengthGrid"),
+        sessionGrid: document.getElementById("sessionGrid"),
+        speakBriefButton: document.getElementById("speakBriefButton"),
+        testVoiceButton: document.getElementById("testVoiceButton"),
+        voiceSelect: document.getElementById("voiceSelect"),
+        voiceBrief: document.getElementById("voiceBrief"),
+        voiceNote: document.getElementById("voiceNote"),
+        openMethodButton: document.getElementById("openMethodButton"),
+        closeMethodButton: document.getElementById("closeMethodButton"),
+        methodModal: document.getElementById("methodModal")
+      };
+
+      document.addEventListener("DOMContentLoaded", init);
+
+      function init() {
+        applyTheme();
+        elements.dataMode.value = state.dataMode;
+        syncVoiceButton();
+        syncPeriodButtons();
+        populateCurrencyControls();
+        bindEvents();
+        renderSessions();
+        populateVoiceChoices();
+        loadDashboard();
+      }
+
+      function bindEvents() {
+        elements.refreshButton.addEventListener("click", loadDashboard);
+        elements.dataMode.addEventListener("change", () => {
+          state.dataMode = elements.dataMode.value;
+          localStorage.setItem(STORAGE.dataMode, state.dataMode);
+          loadDashboard();
+        });
+        elements.themeToggle.addEventListener("click", () => {
+          state.theme = state.theme === "dark" ? "light" : "dark";
+          localStorage.setItem(STORAGE.theme, state.theme);
+          applyTheme();
+          renderChart();
+        });
+        elements.voiceToggle.addEventListener("click", () => {
+          state.voiceAlerts = !state.voiceAlerts;
+          localStorage.setItem(STORAGE.voiceAlerts, String(state.voiceAlerts));
+          syncVoiceButton();
+          if (state.voiceAlerts) speakCurrentBrief(true);
+        });
+        elements.convertAmount.addEventListener("input", renderConverter);
+        elements.convertFrom.addEventListener("change", renderConverter);
+        elements.convertTo.addEventListener("change", renderConverter);
+        elements.pairSelect.addEventListener("change", () => selectPair(elements.pairSelect.value));
+        elements.periodButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            state.period = button.dataset.period;
+            localStorage.setItem(STORAGE.period, state.period);
+            syncPeriodButtons();
+            loadDashboard();
+          });
+        });
+        elements.addPairButton.addEventListener("click", addCustomPair);
+        elements.resetPairsButton.addEventListener("click", resetPairs);
+        elements.pairFilter.addEventListener("input", renderRates);
+        elements.speakBriefButton.addEventListener("click", () => speakCurrentBrief(true));
+        elements.testVoiceButton.addEventListener("click", () => speak("Voice test. Forex Pulse will read the selected pair, data source, recent movement, risk score, momentum score, and a clear research note."));
+        elements.voiceSelect.addEventListener("change", () => {
+          state.voiceChoice = elements.voiceSelect.value;
+          if (state.voiceChoice) localStorage.setItem(STORAGE.voiceChoice, state.voiceChoice);
+          else localStorage.removeItem(STORAGE.voiceChoice);
+          updateVoiceNote();
+        });
+        if ("speechSynthesis" in window) {
+          window.speechSynthesis.addEventListener("voiceschanged", () => {
+            populateVoiceChoices();
+            updateVoiceNote();
+          });
+        }
+        elements.openMethodButton.addEventListener("click", openMethodModal);
+        elements.closeMethodButton.addEventListener("click", closeMethodModal);
+        elements.methodModal.addEventListener("click", (event) => {
+          if (event.target === elements.methodModal) closeMethodModal();
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && !elements.methodModal.hidden) closeMethodModal();
+        });
+        setInterval(renderSessions, 60000);
+      }
+
+      async function loadDashboard() {
+        setStatus("Loading global FX rates and " + state.period + " reference history.");
+        elements.refreshButton.disabled = true;
+        try {
+          state.currencies = await fetchCurrencies().catch(() => FALLBACK_CURRENCIES);
+          populateCurrencyControls();
+          const latest = await fetchLatestRates("USD");
+          state.usdRates = Object.assign({ USD: 1 }, latest.rates);
+          state.sourceMeta = latest.meta;
+          state.history = await fetchHistory();
+          state.analytics = state.pairs.map(buildAnalytics).filter(Boolean).sort((a, b) => b.opportunity - a.opportunity);
+          if (!state.analytics.some((item) => item.pair === state.selectedPair) && state.analytics.length) {
+            state.selectedPair = state.analytics[0].pair;
+          }
+          renderAll();
+          setStatus("Rates updated from " + providerLabel() + ".", "success");
+        } catch (error) {
+          console.error(error);
+          setStatus("Rates could not be loaded. Check your internet connection or switch data mode.", "error");
+        } finally {
+          elements.refreshButton.disabled = false;
+        }
+      }
+
+      async function fetchCurrencies() {
+        const data = await getJson(API.frankfurter + "/currencies");
+        if (Array.isArray(data)) {
+          return data.map((item) => ({
+            code: item.iso_code || item.code,
+            name: item.name || item.iso_code || item.code
+          })).filter((item) => item.code);
+        }
+        if (data && typeof data === "object") {
+          return Object.entries(data).map(([code, name]) => ({ code, name: String(name) }));
+        }
+        return FALLBACK_CURRENCIES;
+      }
+
+      async function fetchLatestRates(base) {
+        if (state.dataMode === "live") {
+          try {
+            const live = await getJson(API.live + "/latest/" + encodeURIComponent(base));
+            if (live && (live.result === "success" || live.rates)) {
+              return {
+                rates: Object.assign({ [base]: 1 }, live.rates || {}),
+                meta: {
+                  provider: "exchangerate.dev",
+                  source: live.source || "live",
+                  session: live.market_session || "unknown",
+                  timestamp: live.timestamp || new Date().toISOString(),
+                  fallback: false
+                }
+              };
+            }
+          } catch (error) {
+            console.warn("Live FX source unavailable, falling back to Frankfurter.", error);
+          }
+        }
+
+        const data = await getJson(API.frankfurter + "/rates?base=" + encodeURIComponent(base));
+        return {
+          rates: parseFrankfurterRates(data, base),
+          meta: {
+            provider: "Frankfurter",
+            source: "central bank reference",
+            session: "reference",
+            timestamp: data.date || new Date().toISOString(),
+            fallback: state.dataMode === "live"
+          }
+        };
+      }
+
+      async function fetchHistory() {
+        const supported = new Set(state.currencies.map((item) => item.code));
+        const quoteSet = new Set(["EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "CNY", "SGD", "HKD", "MXN", "ZAR"].filter((code) => supported.has(code)));
+        state.pairs.forEach((pair) => {
+          const [base, quote] = pair.split("/");
+          if (base !== "USD" && supported.has(base)) quoteSet.add(base);
+          if (quote !== "USD" && supported.has(quote)) quoteSet.add(quote);
+        });
+        const quotes = Array.from(quoteSet).filter((code) => code !== "USD").join(",");
+        const from = isoDate(daysAgo(Math.max(46, periodDays() + 10)));
+        const url = API.frankfurter + "/rates?base=USD&quotes=" + encodeURIComponent(quotes) + "&from=" + from;
+        const data = await getJson(url);
+        return parseHistory(data);
+      }
+
+      function parseFrankfurterRates(data, base) {
+        const rates = { [base]: 1 };
+        if (Array.isArray(data)) {
+          data.forEach((item) => {
+            if (item.quote && isFiniteNumber(item.rate)) rates[item.quote] = Number(item.rate);
+          });
+        } else if (data && data.rates) {
+          Object.entries(data.rates).forEach(([code, rate]) => {
+            if (isFiniteNumber(rate)) rates[code] = Number(rate);
+          });
+        }
+        return rates;
+      }
+
+      function parseHistory(data) {
+        const byDate = new Map();
+        if (Array.isArray(data)) {
+          data.forEach((item) => {
+            if (!item.date || !item.quote || !isFiniteNumber(item.rate)) return;
+            if (!byDate.has(item.date)) byDate.set(item.date, { date: item.date, rates: { USD: 1 } });
+            byDate.get(item.date).rates[item.quote] = Number(item.rate);
+          });
+        } else if (data && data.rates) {
+          Object.entries(data.rates).forEach(([date, rates]) => {
+            byDate.set(date, { date, rates: Object.assign({ USD: 1 }, rates) });
+          });
+        }
+        return Array.from(byDate.values()).sort((a, b) => a.date.localeCompare(b.date));
+      }
+
+      function buildAnalytics(pair) {
+        const [base, quote] = pair.split("/");
+        if (!base || !quote) return null;
+        const series = state.history.map((item) => {
+          const rate = crossRate(base, quote, item.rates);
+          return isFiniteNumber(rate) ? { date: item.date, rate } : null;
+        }).filter(Boolean);
+        const latest = crossRate(base, quote, state.usdRates);
+        if (!isFiniteNumber(latest)) return null;
+        if (!series.length || series[series.length - 1].date !== isoDate(new Date())) {
+          series.push({ date: "Latest", rate: latest });
+        }
+
+        const returns = [];
+        for (let index = 1; index < series.length; index += 1) {
+          const prev = series[index - 1].rate;
+          const next = series[index].rate;
+          if (prev > 0 && next > 0) returns.push((next / prev - 1) * 100);
+        }
+
+        const change1 = percentChange(series, 1);
+        const change7 = percentChange(series, 7);
+        const change30 = percentChange(series, 30);
+        const periodChange = percentChange(series, periodDays());
+        const vol = standardDeviation(returns.slice(-20));
+        const drawdown = maxDrawdown(series.slice(-30));
+        const direction = periodChange >= 0 ? 1 : -1;
+        const recent = returns.slice(-7);
+        const consistency = recent.length ? recent.filter((value) => direction >= 0 ? value >= 0 : value <= 0).length / recent.length : 0.5;
+        const risk = clamp(vol * 32 + Math.abs(drawdown) * 7 + (Math.abs(change1) > 1.2 ? 10 : 0), 0, 100);
+        const rangeWeight = state.period === "7D" ? 7 : state.period === "30D" ? 2.7 : state.period === "90D" ? 1.25 : 0.55;
+        const trendComponent = Math.min(Math.abs(periodChange) * rangeWeight, 30);
+        const contextComponent = Math.min(Math.abs(change30) * 1.35, 18);
+        const opportunity = clamp(38 + trendComponent + contextComponent + consistency * 24 - risk * 0.34, 0, 100);
+        const bias = periodChange > 0.08 ? "Base strength" : periodChange < -0.08 ? "Quote strength" : "Neutral";
+        const setup = opportunity >= 72 && risk <= 40 ? "Calm momentum condition" :
+          risk >= 65 ? "High-risk conditions" :
+            opportunity >= 58 ? "Watchlist condition" : "Neutral condition";
+
+        return {
+          pair,
+          base,
+          quote,
+          rate: latest,
+          series,
+          change1,
+          change7,
+          change30,
+          periodChange,
+          volatility: vol,
+          drawdown,
+          risk,
+          opportunity,
+          momentum: opportunity,
+          consistency,
+          bias,
+          setup
+        };
+      }
+
+      function renderAll() {
+        renderHeader();
+        renderPairSelect();
+        renderConverter();
+        renderRates();
+        renderSelectedPair();
+        renderWatchTable();
+        renderStrength();
+        renderSessions();
+        renderChart();
+        updateVoiceNote();
+        renderIcons();
+        maybeAutoSpeak();
+      }
+
+      function renderHeader() {
+        const best = state.analytics[0];
+        const selected = selectedAnalytics();
+        elements.execProvider.textContent = providerLabel();
+        elements.execBestPair.textContent = best ? best.pair : "--";
+        elements.execOpportunity.textContent = best ? Math.round(best.opportunity) + "/100" : "--";
+        elements.execRisk.textContent = best ? riskLabel(best.risk) : "--";
+        elements.execSession.textContent = currentSessionSummary();
+        elements.execPairs.textContent = String(state.analytics.length);
+        const when = state.sourceMeta && state.sourceMeta.timestamp ? state.sourceMeta.timestamp : new Date().toISOString();
+        elements.lastUpdated.textContent = "Updated " + formatTimestamp(when);
+        elements.dataStamp.textContent = "Source: " + providerLabel() + " | Timestamp: " + formatTimestamp(when);
+        elements.mobilePair.textContent = selected ? selected.pair : "--";
+        elements.mobileMomentum.textContent = selected ? Math.round(selected.opportunity) + "/100" : "--";
+        elements.mobileRisk.textContent = selected ? riskLabel(selected.risk) : "--";
+        elements.mobileSession.textContent = currentSessionSummary();
+      }
+
+      function renderPairSelect() {
+        elements.pairSelect.innerHTML = state.analytics.map((item) => {
+          return '<option value="' + escapeHtml(item.pair) + '"' + (item.pair === state.selectedPair ? " selected" : "") + ">" +
+            escapeHtml(item.pair) +
+            "</option>";
+        }).join("");
+      }
+
+      function renderConverter() {
+        const amount = Number(elements.convertAmount.value || 0);
+        const from = elements.convertFrom.value || "USD";
+        const to = elements.convertTo.value || "EUR";
+        const rate = crossRate(from, to, state.usdRates);
+        if (!isFiniteNumber(rate)) {
+          elements.conversionResult.textContent = "--";
+          elements.conversionRate.textContent = "Conversion is not available for this pair.";
+          return;
+        }
+        elements.conversionResult.textContent = formatMoney(amount * rate, to);
+        elements.conversionRate.textContent = "1 " + from + " = " + formatRate(rate) + " " + to;
+      }
+
+      function renderRates() {
+        const filter = normalize(elements.pairFilter.value);
+        const rows = state.analytics.filter((item) => !filter || normalize(item.pair).includes(filter));
+        if (!rows.length) {
+          elements.rateGrid.innerHTML = '<div class="empty-state">No matching pairs.</div>';
+          return;
+        }
+        elements.rateGrid.innerHTML = rows.map((item) => {
+          const cls = item.change1 > 0 ? "positive" : item.change1 < 0 ? "negative" : "neutral";
+          return [
+            '<button class="rate-card' + (item.pair === state.selectedPair ? " selected" : "") + '" type="button" data-pair="' + escapeHtml(item.pair) + '">',
+            "<header><h3>" + escapeHtml(item.pair) + "</h3><span class=\"small-label\">" + escapeHtml(item.setup) + "</span></header>",
+            '<span class="rate-value">' + formatRate(item.rate) + "</span>",
+            '<span class="change ' + cls + '">' + signedPercent(item.change1) + " today</span>",
+            "<p>Risk " + Math.round(item.risk) + " | Momentum " + Math.round(item.opportunity) + "</p>",
+            "</button>"
+          ].join("");
+        }).join("");
+        elements.rateGrid.querySelectorAll("[data-pair]").forEach((button) => {
+          button.addEventListener("click", () => selectPair(button.dataset.pair));
+        });
+      }
+
+      function renderSelectedPair() {
+        const item = selectedAnalytics();
+        if (!item) return;
+        elements.selectedPairName.textContent = item.pair + " analytics brief";
+        elements.selectedRate.textContent = formatRate(item.rate);
+        elements.biasPill.textContent = item.bias;
+        elements.opportunityScore.textContent = Math.round(item.opportunity) + "/100";
+        elements.opportunityScore.className = scoreClass(item.opportunity, false);
+        elements.opportunityBar.style.setProperty("--risk-width", Math.round(item.opportunity) + "%");
+        elements.riskScore.textContent = Math.round(item.risk) + "/100";
+        elements.riskScore.className = scoreClass(item.risk, true);
+        elements.riskBar.style.setProperty("--risk-width", Math.round(item.risk) + "%");
+        elements.moveScore.textContent = signedPercent(item.periodChange);
+        elements.moveScore.className = item.periodChange >= 0 ? "score-good" : "score-risk";
+        elements.moveText.textContent = state.period + " range. Thirty-day context " + signedPercent(item.change30) + ".";
+        elements.decisionText.textContent = buildDecisionText(item);
+        elements.voiceBrief.textContent = buildVoiceBrief(item);
+        elements.mobilePair.textContent = item.pair;
+        elements.mobileMomentum.textContent = Math.round(item.opportunity) + "/100";
+        elements.mobileRisk.textContent = riskLabel(item.risk);
+      }
+
+      function renderWatchTable() {
+        elements.watchTable.innerHTML = state.analytics.map((item) => {
+          return [
+            "<tr>",
+            '<td><strong>' + escapeHtml(item.pair) + "</strong></td>",
+            "<td>" + formatRate(item.rate) + "</td>",
+            '<td class="' + (item.change1 >= 0 ? "score-good" : "score-risk") + '">' + signedPercent(item.change1) + "</td>",
+            '<td class="' + (item.change7 >= 0 ? "score-good" : "score-risk") + '">' + signedPercent(item.change7) + "</td>",
+            "<td>" + formatNumber(item.volatility, 2) + "%</td>",
+            '<td class="' + scoreClass(item.risk, true) + '">' + Math.round(item.risk) + "</td>",
+            '<td class="' + scoreClass(item.opportunity, false) + '">' + Math.round(item.opportunity) + "</td>",
+            "<td>" + escapeHtml(item.bias) + "</td>",
+            "</tr>"
+          ].join("");
+        }).join("");
+      }
+
+      function renderStrength() {
+        const latestDate = state.history[state.history.length - 1];
+        const weekDate = state.history[Math.max(0, state.history.length - 8)];
+        if (!latestDate || !weekDate) {
+          elements.strengthGrid.innerHTML = '<div class="empty-state">Strength data is still loading.</div>';
+          return;
+        }
+        const codes = ["USD", "EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "CNY", "MXN", "ZAR", "SGD"];
+        const rows = codes.map((code) => {
+          if (code === "USD") {
+            const average = codes.filter((item) => item !== "USD").map((item) => -currencyChange(item, latestDate.rates, weekDate.rates));
+            return { code, change: average.reduce((sum, value) => sum + value, 0) / average.length };
+          }
+          return { code, change: currencyChange(code, latestDate.rates, weekDate.rates) };
+        }).sort((a, b) => b.change - a.change);
+        elements.strengthGrid.innerHTML = rows.map((item) => {
+          const cls = item.change >= 0 ? "positive" : "negative";
+          return [
+            '<article class="strength-card">',
+            "<span>" + currencyName(item.code) + "</span>",
+            "<strong>" + escapeHtml(item.code) + "</strong>",
+            '<p class="' + cls + ' change">' + signedPercent(item.change) + "</p>",
+            "</article>"
+          ].join("");
+        }).join("");
+      }
+
+      function renderSessions() {
+        const sessions = marketSessions();
+        elements.sessionGrid.innerHTML = sessions.map((session) => {
+          return [
+            '<article class="session-card ' + (session.open ? "open" : "closed") + '">',
+            "<span>" + escapeHtml(session.region) + "</span>",
+            "<strong>" + escapeHtml(session.name) + "</strong>",
+            "<p>" + (session.open ? "Open now" : "Closed") + " | " + escapeHtml(session.hours) + " UTC</p>",
+            "</article>"
+          ].join("");
+        }).join("");
+        elements.execSession.textContent = currentSessionSummary();
+        elements.mobileSession.textContent = currentSessionSummary();
+      }
+
+      function renderChart() {
+        const item = selectedAnalytics();
+        if (!item || !window.Chart) return;
+        const ctx = elements.pairChart.getContext("2d");
+        if (state.chart) state.chart.destroy();
+        const colors = chartColors();
+        const chartSeries = visibleSeries(item.series);
+        elements.chartCaption.textContent = item.pair + " " + state.period + " history from " + providerLabel() + ".";
+        state.chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: chartSeries.map((point) => point.date),
+            datasets: [{
+              label: item.pair,
+              data: chartSeries.map((point) => point.rate),
+              borderColor: colors.green,
+              backgroundColor: colors.greenSoft,
+              fill: true,
+              tension: 0.32,
+              pointRadius: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+              legend: { labels: { color: colors.text, usePointStyle: true, boxWidth: 8 } },
+              tooltip: {
+                backgroundColor: colors.surface,
+                borderColor: colors.line,
+                borderWidth: 1,
+                titleColor: colors.text,
+                bodyColor: colors.text
+              }
+            },
+            scales: {
+              x: { ticks: { color: colors.muted, maxRotation: 0 }, grid: { color: colors.grid } },
+              y: { ticks: { color: colors.muted }, grid: { color: colors.grid } }
+            }
+          }
+        });
+      }
+
+      function selectPair(pair) {
+        state.selectedPair = pair;
+        localStorage.setItem(STORAGE.selectedPair, pair);
+        renderHeader();
+        renderPairSelect();
+        renderRates();
+        renderSelectedPair();
+        renderChart();
+      }
+
+      function addCustomPair() {
+        const base = elements.watchBase.value;
+        const quote = elements.watchQuote.value;
+        if (!base || !quote || base === quote) {
+          setStatus("Choose two different currencies for a pair.", "error");
+          return;
+        }
+        const pair = base + "/" + quote;
+        if (!state.pairs.includes(pair)) {
+          state.pairs = [pair, ...state.pairs].slice(0, 24);
+          localStorage.setItem(STORAGE.pairs, JSON.stringify(state.pairs));
+        }
+        state.selectedPair = pair;
+        localStorage.setItem(STORAGE.selectedPair, pair);
+        loadDashboard();
+      }
+
+      function resetPairs() {
+        state.pairs = DEFAULT_PAIRS.slice();
+        state.selectedPair = "EUR/USD";
+        localStorage.setItem(STORAGE.pairs, JSON.stringify(state.pairs));
+        localStorage.setItem(STORAGE.selectedPair, state.selectedPair);
+        loadDashboard();
+      }
+
+      function populateCurrencyControls() {
+        const sorted = mergeCurrencies(state.currencies).sort((a, b) => a.code.localeCompare(b.code));
+        const options = sorted.map((item) => '<option value="' + escapeHtml(item.code) + '">' + escapeHtml(item.code + " - " + item.name) + "</option>").join("");
+        [elements.convertFrom, elements.convertTo, elements.watchBase, elements.watchQuote].forEach((select) => {
+          const current = select.value;
+          select.innerHTML = options;
+          if (current) select.value = current;
+        });
+        elements.convertFrom.value = elements.convertFrom.value || "USD";
+        elements.convertTo.value = elements.convertTo.value || "EUR";
+        elements.watchBase.value = elements.watchBase.value || "EUR";
+        elements.watchQuote.value = elements.watchQuote.value || "USD";
+      }
+
+      function populateVoiceChoices() {
+        if (!elements.voiceSelect || !("speechSynthesis" in window)) return;
+        const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+        if (!voices.length) {
+          elements.voiceSelect.innerHTML = '<option value="">Voices loading</option>';
+          return;
+        }
+        const option = (voice) => '<option value="' + escapeHtml(voiceKey(voice)) + '"' + (voiceKey(voice) === state.voiceChoice ? " selected" : "") + ">" +
+          escapeHtml(voice.name + " (" + voice.lang + ")") +
+          "</option>";
+        elements.voiceSelect.innerHTML = '<option value="">Auto voice</option>' + voices.map(option).join("");
+      }
+
+      function updateVoiceNote() {
+        const voice = selectedVoice();
+        elements.voiceNote.textContent = voice
+          ? "Using installed browser voice: " + voice.name + " (" + voice.lang + ")."
+          : "Voice uses the closest default browser voice installed on this device.";
+      }
+
+      function syncPeriodButtons() {
+        if (!PERIOD_DAYS[state.period]) state.period = "30D";
+        elements.periodButtons.forEach((button) => {
+          const active = button.dataset.period === state.period;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", String(active));
+        });
+      }
+
+      function openMethodModal() {
+        elements.methodModal.hidden = false;
+        elements.closeMethodButton.focus();
+      }
+
+      function closeMethodModal() {
+        elements.methodModal.hidden = true;
+        elements.openMethodButton.focus();
+      }
+
+      function maybeAutoSpeak() {
+        if (!state.voiceAlerts) return;
+        const best = state.analytics[0];
+        if (!best || best.opportunity < 72 || best.risk > 40) return;
+        const key = best.pair + "|" + Math.round(best.opportunity) + "|" + Math.round(best.risk);
+        if (key === state.lastVoiceKey) return;
+        state.lastVoiceKey = key;
+        speakCurrentBrief(false);
+      }
+
+      function speakCurrentBrief(force) {
+        const item = selectedAnalytics() || state.analytics[0];
+        if (!item) return;
+        if (!force && item.opportunity < 72) return;
+        speak(buildVoiceBrief(item));
+      }
+
+      function speak(message) {
+        if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+          setStatus("Voice is not supported in this browser.", "error");
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(message);
+        const voice = selectedVoice();
+        if (voice) {
+          utterance.voice = voice;
+          utterance.lang = voice.lang;
+        } else {
+          utterance.lang = "en-US";
+        }
+        utterance.rate = 0.92;
+        utterance.pitch = 1;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+        setStatus("Voice briefing started.", "success");
+      }
+
+      function selectedVoice() {
+        const voices = window.speechSynthesis && window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+        if (state.voiceChoice) {
+          return voices.find((voice) => voiceKey(voice) === state.voiceChoice) || null;
+        }
+        return voices.find((voice) => voice.lang === "en-US") || voices[0] || null;
+      }
+
+      function buildDecisionText(item) {
+        if (item.opportunity >= 72 && item.risk <= 40) {
+          return item.pair + " shows calm momentum conditions. The " + state.period + " move is " + signedPercent(item.periodChange) +
+            ", volatility is " + formatNumber(item.volatility, 2) + "%, drawdown is " + signedPercent(item.drawdown) +
+            ", and the momentum score is " + Math.round(item.opportunity) + ".";
+        }
+        if (item.risk >= 65) {
+          return item.pair + " is showing elevated risk. Volatility and recent drawdown are high, so the dashboard treats this as unstable market context.";
+        }
+        if (item.opportunity >= 58) {
+          return item.pair + " belongs on the watchlist. Momentum is present, but the risk score needs to be reviewed before forming any separate trading plan.";
+        }
+        return item.pair + " is neutral right now. The current data does not show a strong momentum condition.";
+      }
+
+      function buildVoiceBrief(item) {
+        const source = providerLabel();
+        return [
+          "Forex Pulse briefing for " + item.pair + ".",
+          "Data source is " + source + ".",
+          "Current rate is " + formatRate(item.rate) + ".",
+          "The " + state.period + " move is " + signedPercent(item.periodChange) + ", and the thirty day context is " + signedPercent(item.change30) + ".",
+          "Risk score is " + Math.round(item.risk) + " out of 100.",
+          "Momentum score is " + Math.round(item.opportunity) + " out of 100.",
+          item.opportunity >= 72 && item.risk <= 40
+            ? "Recent movement, consistency, and volatility are aligned, so conditions look calmer than the rest of the watchlist."
+            : item.risk >= 65
+              ? "Risk is elevated because volatility or drawdown has increased."
+              : "The pair is worth monitoring, but the current condition is not especially calm.",
+          "This is research and educational decision support, not financial advice."
+        ].join(" ");
+      }
+
+      function crossRate(base, quote, rates) {
+        if (base === quote) return 1;
+        if (!rates || !isFiniteNumber(rates[base]) || !isFiniteNumber(rates[quote])) return null;
+        return Number(rates[quote]) / Number(rates[base]);
+      }
+
+      function percentChange(series, days) {
+        if (!series.length) return 0;
+        const latestPoint = series[series.length - 1];
+        const latest = latestPoint.rate;
+        const latestDate = latestSeriesDate(series) || new Date();
+        const targetDate = daysBefore(latestDate, days);
+        const previousPoint = closestPriorPoint(series, targetDate, series.length - 1);
+        const previous = previousPoint ? previousPoint.rate : null;
+        return previous ? (latest / previous - 1) * 100 : 0;
+      }
+
+      function standardDeviation(values) {
+        const clean = values.filter(isFiniteNumber);
+        if (!clean.length) return 0;
+        const mean = clean.reduce((sum, value) => sum + value, 0) / clean.length;
+        const variance = clean.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / clean.length;
+        return Math.sqrt(variance);
+      }
+
+      function maxDrawdown(series) {
+        let peak = series[0] ? series[0].rate : 0;
+        let drawdown = 0;
+        series.forEach((point) => {
+          peak = Math.max(peak, point.rate);
+          if (peak > 0) drawdown = Math.min(drawdown, (point.rate / peak - 1) * 100);
+        });
+        return drawdown;
+      }
+
+      function currencyChange(code, latestRates, weekRates) {
+        if (!isFiniteNumber(latestRates[code]) || !isFiniteNumber(weekRates[code])) return 0;
+        return -((Number(latestRates[code]) / Number(weekRates[code]) - 1) * 100);
+      }
+
+      function marketSessions() {
+        return [
+          { name: "Sydney", region: "Australia", start: 21, end: 6, hours: "21:00-06:00" },
+          { name: "Tokyo", region: "Asia", start: 0, end: 9, hours: "00:00-09:00" },
+          { name: "London", region: "Europe", start: 7, end: 16, hours: "07:00-16:00" },
+          { name: "New York", region: "America", start: 12, end: 21, hours: "12:00-21:00" }
+        ].map((session) => Object.assign({}, session, { open: isSessionOpen(session.start, session.end) }));
+      }
+
+      function isSessionOpen(start, end) {
+        const hour = new Date().getUTCHours();
+        return start < end ? hour >= start && hour < end : hour >= start || hour < end;
+      }
+
+      function currentSessionSummary() {
+        const open = marketSessions().filter((session) => session.open).map((session) => session.name);
+        return open.length ? open.join(", ") : "Between sessions";
+      }
+
+      function applyTheme() {
+        elements.html.dataset.theme = state.theme;
+        elements.themeToggle.innerHTML = state.theme === "dark" ? '<i data-lucide="sun"></i>Light' : '<i data-lucide="moon"></i>Dark';
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", state.theme === "dark" ? "#111412" : "#f5f7f4");
+        renderIcons();
+      }
+
+      function syncVoiceButton() {
+        elements.voiceToggle.classList.toggle("active", state.voiceAlerts);
+        elements.voiceToggle.setAttribute("aria-pressed", String(state.voiceAlerts));
+        elements.voiceToggle.innerHTML = state.voiceAlerts ? '<i data-lucide="volume-2"></i>Voice On' : '<i data-lucide="volume-x"></i>Voice Off';
+        renderIcons();
+      }
+
+      async function getJson(url) {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Request failed: " + response.status);
+        return response.json();
+      }
+
+      function setStatus(message, type) {
+        elements.statusLine.textContent = message || "";
+        elements.statusLine.style.color = type === "error" ? "var(--red)" : type === "success" ? "var(--green)" : "var(--muted)";
+      }
+
+      function providerLabel() {
+        if (!state.sourceMeta) return "Loading";
+        const fallback = state.sourceMeta.fallback ? " fallback" : "";
+        return state.sourceMeta.provider + " " + state.sourceMeta.source + fallback;
+      }
+
+      function selectedAnalytics() {
+        return state.analytics.find((item) => item.pair === state.selectedPair) || state.analytics[0] || null;
+      }
+
+      function riskLabel(score) {
+        if (!isFiniteNumber(score)) return "--";
+        if (score >= 65) return "High";
+        if (score >= 40) return "Medium";
+        return "Lower";
+      }
+
+      function scoreClass(score, riskMode) {
+        if (riskMode) {
+          if (score >= 65) return "score-risk";
+          if (score >= 40) return "score-watch";
+          return "score-good";
+        }
+        if (score >= 72) return "score-good";
+        if (score >= 50) return "score-watch";
+        return "score-risk";
+      }
+
+      function chartColors() {
+        const dark = state.theme === "dark";
+        return {
+          text: dark ? "#f5f7f2" : "#17201b",
+          muted: dark ? "#a9b4ac" : "#5d6a62",
+          line: dark ? "#334139" : "#d5dfd9",
+          grid: dark ? "rgba(213, 223, 217, 0.08)" : "rgba(23, 32, 27, 0.08)",
+          surface: dark ? "#181c1a" : "#ffffff",
+          green: "#28d17c",
+          greenSoft: dark ? "rgba(40, 209, 124, 0.13)" : "rgba(22, 163, 74, 0.1)"
+        };
+      }
+
+      function mergeCurrencies(list) {
+        const map = new Map();
+        FALLBACK_CURRENCIES.concat(list || []).forEach((item) => {
+          if (item && item.code) map.set(item.code, item);
+        });
+        return Array.from(map.values());
+      }
+
+      function currencyName(code) {
+        const item = state.currencies.find((currency) => currency.code === code) || FALLBACK_CURRENCIES.find((currency) => currency.code === code);
+        return item ? item.name : code;
+      }
+
+      function voiceKey(voice) {
+        return [voice.name, voice.lang, voice.localService ? "local" : "remote"].join("|");
+      }
+
+      function daysAgo(days) {
+        const date = new Date();
+        date.setDate(date.getDate() - days);
+        return date;
+      }
+
+      function daysBefore(date, days) {
+        const next = new Date(date.getTime());
+        next.setUTCDate(next.getUTCDate() - days);
+        return next;
+      }
+
+      function periodDays() {
+        return PERIOD_DAYS[state.period] || 30;
+      }
+
+      function visibleSeries(series) {
+        const latestDate = latestSeriesDate(series) || new Date();
+        const targetDate = daysBefore(latestDate, periodDays());
+        let anchor = null;
+        const visible = [];
+        series.forEach((point, index) => {
+          const date = pointDate(point);
+          if (!date) {
+            if (index === series.length - 1) visible.push(point);
+            return;
+          }
+          if (date.getTime() < targetDate.getTime()) {
+            anchor = point;
+            return;
+          }
+          visible.push(point);
+        });
+        const withAnchor = anchor ? [anchor].concat(visible) : visible;
+        return withAnchor.length >= 2 ? withAnchor : series.slice(Math.max(0, series.length - 2));
+      }
+
+      function closestPriorPoint(series, targetDate, excludeIndex) {
+        const candidates = series.map((point, index) => ({ point, index, date: pointDate(point) }))
+          .filter((item) => item.date && item.index !== excludeIndex);
+        if (!candidates.length) return null;
+        const targetTime = targetDate.getTime();
+        const prior = candidates.filter((item) => item.date.getTime() <= targetTime);
+        const pool = prior.length ? prior : candidates;
+        pool.sort((a, b) => Math.abs(a.date.getTime() - targetTime) - Math.abs(b.date.getTime() - targetTime));
+        return pool[0].point;
+      }
+
+      function latestSeriesDate(series) {
+        const latestPoint = series[series.length - 1];
+        if (latestPoint && latestPoint.date === "Latest") {
+          const sourceDate = sourceMetaDate();
+          if (sourceDate) return sourceDate;
+        }
+        for (let index = series.length - 1; index >= 0; index -= 1) {
+          const date = pointDate(series[index]);
+          if (date) return date;
+        }
+        return null;
+      }
+
+      function sourceMetaDate() {
+        if (!state.sourceMeta || !state.sourceMeta.timestamp) return null;
+        return parseDateValue(state.sourceMeta.timestamp);
+      }
+
+      function pointDate(point) {
+        if (!point || !point.date || point.date === "Latest") return null;
+        return parseDateValue(point.date);
+      }
+
+      function isoDate(date) {
+        return date.toISOString().slice(0, 10);
+      }
+
+      function parseDateValue(value) {
+        if (!value) return null;
+        const raw = String(value);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+          const dateOnly = new Date(raw + "T00:00:00Z");
+          return Number.isNaN(dateOnly.getTime()) ? null : dateOnly;
+        }
+        if (/^\d+$/.test(raw)) {
+          const numeric = Number(raw);
+          const unixDate = new Date(numeric < 1000000000000 ? numeric * 1000 : numeric);
+          return Number.isNaN(unixDate.getTime()) ? null : unixDate;
+        }
+        const date = new Date(raw);
+        return Number.isNaN(date.getTime()) ? null : date;
+      }
+
+      function formatTimestamp(value) {
+        if (!value) return "now";
+        const raw = String(value);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+        const date = parseDateValue(value);
+        if (!date) return raw;
+        return date.toLocaleString([], {
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit"
+        });
+      }
+
+      function formatMoney(value, currency) {
+        if (!isFiniteNumber(value)) return "--";
+        try {
+          return new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency,
+            maximumFractionDigits: Math.abs(value) >= 1000 ? 2 : 4
+          }).format(value);
+        } catch {
+          return formatNumber(value, Math.abs(value) >= 1000 ? 2 : 4) + " " + currency;
+        }
+      }
+
+      function formatRate(value) {
+        if (!isFiniteNumber(value)) return "--";
+        const number = Number(value);
+        if (number >= 100) return number.toFixed(3);
+        if (number >= 10) return number.toFixed(4);
+        if (number >= 1) return number.toFixed(5);
+        return number.toFixed(6);
+      }
+
+      function formatNumber(value, digits) {
+        if (!isFiniteNumber(value)) return "--";
+        return Number(value).toFixed(digits);
+      }
+
+      function signedPercent(value) {
+        if (!isFiniteNumber(value)) return "--";
+        const sign = Number(value) > 0 ? "+" : "";
+        return sign + Number(value).toFixed(2) + "%";
+      }
+
+      function normalize(value) {
+        return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      }
+
+      function isFiniteNumber(value) {
+        return value !== null && value !== undefined && Number.isFinite(Number(value));
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        })[char]);
+      }
+
+      function readJson(key, fallback) {
+        try {
+          const value = localStorage.getItem(key);
+          return value ? JSON.parse(value) : fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function renderIcons() {
+        if (window.lucide && window.lucide.createIcons) {
+          window.lucide.createIcons();
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
