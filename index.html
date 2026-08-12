@@ -116,6 +116,7 @@
 
     .app-header,
     .top-strip,
+    .beginner-panel,
     .panel,
     .rate-card,
     .metric-card,
@@ -131,6 +132,7 @@
 
     [data-theme="light"] .app-header,
     [data-theme="light"] .top-strip,
+    [data-theme="light"] .beginner-panel,
     [data-theme="light"] .panel,
     [data-theme="light"] .rate-card,
     [data-theme="light"] .metric-card,
@@ -323,6 +325,58 @@
 
     .mobile-summary .strip-cell {
       background: linear-gradient(135deg, rgba(106, 168, 255, 0.11), var(--surface-soft));
+    }
+
+    .beginner-panel {
+      border-color: rgba(106, 168, 255, 0.34);
+      background:
+        linear-gradient(135deg, rgba(106, 168, 255, 0.1), transparent 52%),
+        var(--surface);
+    }
+
+    .plain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .plain-card,
+    .plain-english-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+    }
+
+    .plain-card span,
+    .plain-english-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .plain-card strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 1.2rem;
+      line-height: 1.1;
+    }
+
+    .plain-card p,
+    .plain-english-card p {
+      color: var(--muted);
+    }
+
+    .plain-english-card {
+      color: var(--muted);
+    }
+
+    .plain-english-card[hidden],
+    .beginner-panel[hidden] {
+      display: none;
     }
 
     .strip-cell {
@@ -765,6 +819,7 @@
     @media (max-width: 1180px) {
       .top-strip,
       .rate-grid,
+      .plain-grid,
       .strength-grid,
       .session-grid,
       .forecast-grid {
@@ -796,6 +851,7 @@
 
       .rate-grid,
       .metric-grid,
+      .plain-grid,
       .strength-grid,
       .session-grid,
       .forecast-grid,
@@ -837,6 +893,7 @@
 
       .rate-grid,
       .metric-grid,
+      .plain-grid,
       .strength-grid,
       .session-grid,
       .forecast-grid,
@@ -881,6 +938,7 @@
           <option value="live">Live FX where available</option>
           <option value="reference">Central bank reference</option>
         </select>
+        <button class="button active" id="beginnerToggle" type="button" aria-pressed="true"><i data-lucide="book-open"></i>Explain Mode On</button>
         <button class="button" id="voiceToggle" type="button" aria-pressed="false"><i data-lucide="volume-x"></i>Voice Off</button>
         <button class="button" id="themeToggle" type="button"><i data-lucide="sun"></i>Light</button>
         <button class="button primary" id="refreshButton" type="button"><i data-lucide="refresh-cw"></i>Refresh</button>
@@ -937,6 +995,33 @@
         <div class="strip-cell">
           <span>Session</span>
           <strong id="mobileSession">--</strong>
+        </div>
+      </section>
+
+      <section class="beginner-panel panel" id="beginnerPanel" aria-labelledby="beginnerTitle">
+        <div class="panel-header">
+          <div>
+            <h2 id="beginnerTitle">Forex in Plain English</h2>
+            <p>Forex means comparing one currency with another. The dashboard turns exchange-rate data into readable market context.</p>
+          </div>
+          <button class="button" id="openGlossaryButton" type="button"><i data-lucide="circle-help"></i>Forex Basics</button>
+        </div>
+        <div class="plain-grid">
+          <article class="plain-card">
+            <span>Current Pair</span>
+            <strong id="plainPair">--</strong>
+            <p id="plainPairMeaning">Select a pair to see what the two currencies mean.</p>
+          </article>
+          <article class="plain-card">
+            <span>Rate Meaning</span>
+            <strong id="plainRate">--</strong>
+            <p id="plainRateMeaning">The rate explains how much of the second currency equals one unit of the first currency.</p>
+          </article>
+          <article class="plain-card">
+            <span>Model Reading</span>
+            <strong id="plainModel">--</strong>
+            <p id="plainModelMeaning">Risk and momentum are dashboard indicators, not official market ratings.</p>
+          </article>
         </div>
       </section>
 
@@ -1037,6 +1122,10 @@
             </article>
           </div>
           <div class="voice-brief" id="decisionText">Load rates to see the pair analytics brief.</div>
+          <div class="plain-english-card" id="plainEnglishBrief">
+            <span>Plain English</span>
+            <p>Load rates to see this pair explained without forex jargon.</p>
+          </div>
         </article>
       </section>
 
@@ -1199,6 +1288,40 @@
     </section>
   </div>
 
+  <div class="modal-backdrop" id="glossaryModal" hidden>
+    <section class="method-modal" role="dialog" aria-modal="true" aria-labelledby="glossaryTitle">
+      <header>
+        <div>
+          <h2 id="glossaryTitle">Forex Basics</h2>
+          <p>These definitions explain the words used in Forex Pulse in simple language.</p>
+        </div>
+        <button class="button" id="closeGlossaryButton" type="button" aria-label="Close forex basics"><i data-lucide="x"></i></button>
+      </header>
+      <div class="method-list">
+        <article>
+          <strong>Forex</strong>
+          <p>Forex means foreign exchange. It is the comparison or conversion of one currency into another.</p>
+        </article>
+        <article>
+          <strong>Currency Pair</strong>
+          <p>A pair such as EUR/USD compares the euro with the US dollar. The first currency is the base currency and the second is the quote currency.</p>
+        </article>
+        <article>
+          <strong>Exchange Rate</strong>
+          <p>If EUR/USD is 1.15251, then one euro is worth about 1.15251 US dollars based on the retrieved data.</p>
+        </article>
+        <article>
+          <strong>Base Strength</strong>
+          <p>This means the first currency in the pair has strengthened relative to the second currency over the period being evaluated.</p>
+        </article>
+        <article>
+          <strong>Risk And Momentum</strong>
+          <p>These are Forex Pulse indicators created from historical data. They describe volatility and movement; they do not predict the future or tell anyone to buy or sell.</p>
+        </article>
+      </div>
+    </section>
+  </div>
+
   <script>
     (function () {
       "use strict";
@@ -1214,6 +1337,7 @@
         pairs: "fx_pairs",
         selectedPair: "fx_selected_pair",
         period: "fx_chart_period",
+        beginnerMode: "fx_beginner_mode",
         voiceAlerts: "fx_voice_alerts",
         voiceChoice: "fx_voice_choice"
       };
@@ -1276,6 +1400,7 @@
         pairs: readJson(STORAGE.pairs, DEFAULT_PAIRS),
         selectedPair: localStorage.getItem(STORAGE.selectedPair) || "EUR/USD",
         period: localStorage.getItem(STORAGE.period) || "30D",
+        beginnerMode: localStorage.getItem(STORAGE.beginnerMode) !== "false",
         voiceAlerts: localStorage.getItem(STORAGE.voiceAlerts) === "true",
         voiceChoice: localStorage.getItem(STORAGE.voiceChoice) || "",
         currencies: FALLBACK_CURRENCIES,
@@ -1293,6 +1418,7 @@
         dataStamp: document.getElementById("dataStamp"),
         lastUpdated: document.getElementById("lastUpdated"),
         dataMode: document.getElementById("dataMode"),
+        beginnerToggle: document.getElementById("beginnerToggle"),
         voiceToggle: document.getElementById("voiceToggle"),
         themeToggle: document.getElementById("themeToggle"),
         refreshButton: document.getElementById("refreshButton"),
@@ -1306,6 +1432,13 @@
         mobileMomentum: document.getElementById("mobileMomentum"),
         mobileRisk: document.getElementById("mobileRisk"),
         mobileSession: document.getElementById("mobileSession"),
+        beginnerPanel: document.getElementById("beginnerPanel"),
+        plainPair: document.getElementById("plainPair"),
+        plainPairMeaning: document.getElementById("plainPairMeaning"),
+        plainRate: document.getElementById("plainRate"),
+        plainRateMeaning: document.getElementById("plainRateMeaning"),
+        plainModel: document.getElementById("plainModel"),
+        plainModelMeaning: document.getElementById("plainModelMeaning"),
         convertAmount: document.getElementById("convertAmount"),
         convertFrom: document.getElementById("convertFrom"),
         convertTo: document.getElementById("convertTo"),
@@ -1328,6 +1461,7 @@
         moveScore: document.getElementById("moveScore"),
         moveText: document.getElementById("moveText"),
         decisionText: document.getElementById("decisionText"),
+        plainEnglishBrief: document.getElementById("plainEnglishBrief"),
         pairChart: document.getElementById("pairChart"),
         chartCaption: document.getElementById("chartCaption"),
         periodButtons: Array.from(document.querySelectorAll("[data-period]")),
@@ -1341,7 +1475,10 @@
         voiceNote: document.getElementById("voiceNote"),
         openMethodButton: document.getElementById("openMethodButton"),
         closeMethodButton: document.getElementById("closeMethodButton"),
-        methodModal: document.getElementById("methodModal")
+        methodModal: document.getElementById("methodModal"),
+        openGlossaryButton: document.getElementById("openGlossaryButton"),
+        closeGlossaryButton: document.getElementById("closeGlossaryButton"),
+        glossaryModal: document.getElementById("glossaryModal")
       };
 
       document.addEventListener("DOMContentLoaded", init);
@@ -1351,6 +1488,7 @@
         elements.dataMode.value = state.dataMode;
         syncVoiceButton();
         syncPeriodButtons();
+        syncBeginnerMode();
         populateCurrencyControls();
         bindEvents();
         renderSessions();
@@ -1370,6 +1508,12 @@
           localStorage.setItem(STORAGE.theme, state.theme);
           applyTheme();
           renderChart();
+        });
+        elements.beginnerToggle.addEventListener("click", () => {
+          state.beginnerMode = !state.beginnerMode;
+          localStorage.setItem(STORAGE.beginnerMode, String(state.beginnerMode));
+          syncBeginnerMode();
+          renderPlainEnglish(selectedAnalytics());
         });
         elements.voiceToggle.addEventListener("click", () => {
           state.voiceAlerts = !state.voiceAlerts;
@@ -1411,8 +1555,14 @@
         elements.methodModal.addEventListener("click", (event) => {
           if (event.target === elements.methodModal) closeMethodModal();
         });
+        elements.openGlossaryButton.addEventListener("click", openGlossaryModal);
+        elements.closeGlossaryButton.addEventListener("click", closeGlossaryModal);
+        elements.glossaryModal.addEventListener("click", (event) => {
+          if (event.target === elements.glossaryModal) closeGlossaryModal();
+        });
         document.addEventListener("keydown", (event) => {
           if (event.key === "Escape" && !elements.methodModal.hidden) closeMethodModal();
+          if (event.key === "Escape" && !elements.glossaryModal.hidden) closeGlossaryModal();
         });
         setInterval(renderSessions, 60000);
       }
@@ -1689,9 +1839,31 @@
         elements.moveText.textContent = state.period + " range. Thirty-day context " + signedPercent(item.change30) + ".";
         elements.decisionText.textContent = buildDecisionText(item);
         elements.voiceBrief.textContent = buildVoiceBrief(item);
+        renderPlainEnglish(item);
         elements.mobilePair.textContent = item.pair;
         elements.mobileMomentum.textContent = Math.round(item.opportunity) + "/100";
         elements.mobileRisk.textContent = riskLabel(item.risk);
+      }
+
+      function renderPlainEnglish(item) {
+        if (!item) return;
+        const baseName = currencyName(item.base);
+        const quoteName = currencyName(item.quote);
+        const moveDirection = item.periodChange > 0 ? item.base + " strengthened against " + item.quote :
+          item.periodChange < 0 ? item.base + " weakened against " + item.quote :
+            item.base + " was mostly unchanged against " + item.quote;
+        const modelText = "Risk " + Math.round(item.risk) + "/100 | Momentum " + Math.round(item.opportunity) + "/100";
+        elements.plainPair.textContent = item.pair;
+        elements.plainPairMeaning.textContent = item.pair + " compares " + baseName + " with " + quoteName + ". " + item.base + " is the base currency. " + item.quote + " is the quote currency.";
+        elements.plainRate.textContent = "1 " + item.base + " = " + formatRate(item.rate) + " " + item.quote;
+        elements.plainRateMeaning.textContent = "If this rate rises, one " + item.base + " buys more " + item.quote + ". If it falls, one " + item.base + " buys less " + item.quote + ".";
+        elements.plainModel.textContent = item.setup;
+        elements.plainModelMeaning.textContent = modelText + ". These are Forex Pulse indicators built from historical movement, volatility, and drawdown.";
+        elements.plainEnglishBrief.innerHTML = "<span>Plain English</span><p>" +
+          escapeHtml(item.pair + " means one " + item.base + " is worth " + formatRate(item.rate) + " " + item.quote + ". Over " + state.period + ", " + moveDirection + " by " + absolutePercent(item.periodChange) + ". The dashboard classifies this as " + item.setup.toLowerCase() + ", not a buy or sell recommendation.") +
+          "</p>";
+        elements.biasPill.title = biasExplanation(item);
+        elements.biasPill.setAttribute("aria-label", item.bias + ". " + biasExplanation(item));
       }
 
       function renderWatchTable() {
@@ -1833,17 +2005,23 @@
       }
 
       function populateCurrencyControls() {
+        const previousFrom = elements.convertFrom.value;
+        const previousTo = elements.convertTo.value;
+        const previousWatchBase = elements.watchBase.value;
+        const previousWatchQuote = elements.watchQuote.value;
         const sorted = mergeCurrencies(state.currencies).sort((a, b) => a.code.localeCompare(b.code));
         const options = sorted.map((item) => '<option value="' + escapeHtml(item.code) + '">' + escapeHtml(item.code + " - " + item.name) + "</option>").join("");
-        [elements.convertFrom, elements.convertTo, elements.watchBase, elements.watchQuote].forEach((select) => {
-          const current = select.value;
-          select.innerHTML = options;
-          if (current) select.value = current;
-        });
-        elements.convertFrom.value = elements.convertFrom.value || "USD";
-        elements.convertTo.value = elements.convertTo.value || "EUR";
-        elements.watchBase.value = elements.watchBase.value || "EUR";
-        elements.watchQuote.value = elements.watchQuote.value || "USD";
+        const hasCurrency = (code) => sorted.some((item) => item.code === code);
+
+        elements.convertFrom.innerHTML = options;
+        elements.convertTo.innerHTML = options;
+        elements.watchBase.innerHTML = options;
+        elements.watchQuote.innerHTML = options;
+
+        elements.convertFrom.value = previousFrom && hasCurrency(previousFrom) ? previousFrom : "USD";
+        elements.convertTo.value = previousTo && hasCurrency(previousTo) ? previousTo : "EUR";
+        elements.watchBase.value = previousWatchBase && hasCurrency(previousWatchBase) ? previousWatchBase : "EUR";
+        elements.watchQuote.value = previousWatchQuote && hasCurrency(previousWatchQuote) ? previousWatchQuote : "USD";
       }
 
       function populateVoiceChoices() {
@@ -1875,6 +2053,17 @@
         });
       }
 
+      function syncBeginnerMode() {
+        elements.beginnerPanel.hidden = !state.beginnerMode;
+        elements.plainEnglishBrief.hidden = !state.beginnerMode;
+        elements.beginnerToggle.classList.toggle("active", state.beginnerMode);
+        elements.beginnerToggle.setAttribute("aria-pressed", String(state.beginnerMode));
+        elements.beginnerToggle.innerHTML = state.beginnerMode
+          ? '<i data-lucide="book-open"></i>Explain Mode On'
+          : '<i data-lucide="book"></i>Explain Mode Off';
+        renderIcons();
+      }
+
       function openMethodModal() {
         elements.methodModal.hidden = false;
         elements.closeMethodButton.focus();
@@ -1883,6 +2072,16 @@
       function closeMethodModal() {
         elements.methodModal.hidden = true;
         elements.openMethodButton.focus();
+      }
+
+      function openGlossaryModal() {
+        elements.glossaryModal.hidden = false;
+        elements.closeGlossaryButton.focus();
+      }
+
+      function closeGlossaryModal() {
+        elements.glossaryModal.hidden = true;
+        elements.openGlossaryButton.focus();
       }
 
       function maybeAutoSpeak() {
@@ -1949,8 +2148,8 @@
         const source = providerLabel();
         return [
           "Forex Pulse briefing for " + item.pair + ".",
+          item.pair + " means " + item.base + " compared with " + item.quote + ". One " + item.base + " is worth " + formatRate(item.rate) + " " + item.quote + ".",
           "Data source is " + source + ".",
-          "Current rate is " + formatRate(item.rate) + ".",
           "The " + state.period + " move is " + signedPercent(item.periodChange) + ", and the thirty day context is " + signedPercent(item.change30) + ".",
           "Risk score is " + Math.round(item.risk) + " out of 100.",
           "Momentum score is " + Math.round(item.opportunity) + " out of 100.",
@@ -2062,6 +2261,17 @@
         if (score >= 65) return "High";
         if (score >= 40) return "Medium";
         return "Lower";
+      }
+
+      function biasExplanation(item) {
+        if (!item) return "No pair is selected.";
+        if (item.bias === "Base strength") {
+          return item.base + " has strengthened relative to " + item.quote + " over the selected period.";
+        }
+        if (item.bias === "Quote strength") {
+          return item.quote + " has strengthened relative to " + item.base + " over the selected period.";
+        }
+        return "The selected period does not show a strong direction between the two currencies.";
       }
 
       function scoreClass(score, riskMode) {
@@ -2241,6 +2451,11 @@
         if (!isFiniteNumber(value)) return "--";
         const sign = Number(value) > 0 ? "+" : "";
         return sign + Number(value).toFixed(2) + "%";
+      }
+
+      function absolutePercent(value) {
+        if (!isFiniteNumber(value)) return "--";
+        return Math.abs(Number(value)).toFixed(2) + "%";
       }
 
       function normalize(value) {
