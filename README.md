@@ -59,7 +59,7 @@ These calculations are intentionally transparent. They are designed to describe 
 
 ## How To Run It
 
-Open `forex-trading-dashboard.html` in a modern browser.
+Open it live from here: `https://kuhemmanuel9-sudo.github.io/Forex-Pulse-by-Emmanuel/` in a modern browser.
 
 No build step is required. The HTML, CSS, and JavaScript are all included in one file.
 
