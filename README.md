@@ -61,6 +61,8 @@ These calculations are intentionally transparent. They are designed to describe 
 
 Open it live from here: `https://kuhemmanuel9-sudo.github.io/Forex-Pulse-by-Emmanuel/` in a modern browser.
 
+or use :t https://kuhemmanuel9-sudo.github.io/Forex-Pulse-by-Emmanuel/  for live demo
+
 No build step is required. The HTML, CSS, and JavaScript are all included in one file.
 
 ## Important Note
