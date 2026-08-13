@@ -28,10 +28,14 @@ The dashboard runs as a single HTML file. It does not require a backend, databas
 14. Installed browser voice selector
 15. Explain Mode with plain-English pair explanations
 16. Forex basics glossary
-17. Dark and light themes
-18. Dedicated mobile summary view
-19. Local storage for saved pairs and settings
-20. Transparent methodology modal
+17. Market Pulse ribbon for quick pair scanning
+18. Phone-first bottom navigation
+19. Swipeable mobile rate cards
+20. Mobile card view for watchlist analytics
+21. Dark and light themes
+22. Dedicated mobile summary view
+23. Local storage for saved pairs and settings
+24. Transparent methodology modal
 
 ## Built With
 
