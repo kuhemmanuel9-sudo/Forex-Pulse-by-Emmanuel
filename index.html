@@ -30,6 +30,8 @@
       --red-soft: rgba(239, 100, 97, 0.15);
       --violet: #9b8cff;
       --blue: #6aa8ff;
+      --ink: #06100c;
+      --terminal: #07120e;
       --shadow: 0 24px 80px rgba(0, 0, 0, 0.26);
       --radius: 8px;
       --focus: 0 0 0 3px rgba(72, 198, 239, 0.22);
@@ -50,6 +52,8 @@
       --amber-soft: rgba(180, 83, 9, 0.11);
       --red-soft: rgba(220, 38, 38, 0.1);
       --shadow: 0 20px 70px rgba(31, 41, 36, 0.1);
+      --ink: #f8fbf8;
+      --terminal: #f6faf7;
     }
 
     * {
@@ -68,6 +72,7 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-size: 15px;
       line-height: 1.5;
+      overflow-x: hidden;
     }
 
     button,
@@ -108,8 +113,9 @@
       inset: 0;
       pointer-events: none;
       background-image:
-        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+        linear-gradient(120deg, transparent, rgba(40, 209, 124, 0.055), transparent);
       background-size: 42px 42px;
       mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 70%);
     }
@@ -125,7 +131,9 @@
     .forecast-card {
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: rgba(24, 28, 26, 0.88);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+        rgba(24, 28, 26, 0.88);
       box-shadow: var(--shadow);
       backdrop-filter: blur(18px);
     }
@@ -148,6 +156,19 @@
       gap: 18px;
       align-items: center;
       padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app-header::after {
+      content: "";
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--green), var(--cyan), transparent);
+      opacity: 0.7;
     }
 
     .brand {
@@ -171,7 +192,7 @@
 
     .brand h1 {
       margin: 0;
-      font-size: clamp(1.45rem, 2.2vw, 2.2rem);
+      font-size: 2rem;
       line-height: 1.08;
     }
 
@@ -206,6 +227,7 @@
     .pill,
     .select,
     input {
+      min-width: 0;
       min-height: 40px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -305,6 +327,69 @@
     .layout {
       display: grid;
       gap: 14px;
+    }
+
+    .market-ribbon {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 12px;
+      padding: 8px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(90deg, rgba(40, 209, 124, 0.1), transparent 38%),
+        var(--terminal);
+      box-shadow: var(--shadow);
+      scrollbar-width: thin;
+      scroll-snap-type: x mandatory;
+    }
+
+    .market-ribbon::-webkit-scrollbar,
+    .rate-grid::-webkit-scrollbar {
+      height: 7px;
+    }
+
+    .market-ribbon::-webkit-scrollbar-thumb,
+    .rate-grid::-webkit-scrollbar-thumb {
+      background: var(--line);
+      border-radius: 999px;
+    }
+
+    .ribbon-item {
+      min-width: max-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      color: var(--text);
+      scroll-snap-align: start;
+    }
+
+    .ribbon-item em {
+      font-style: normal;
+    }
+
+    .ribbon-item strong {
+      font-size: 0.86rem;
+    }
+
+    .ribbon-item span {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .ribbon-item .positive,
+    .ribbon-item .negative,
+    .ribbon-item .neutral {
+      margin: 0;
+      padding: 2px 6px;
+      font-size: 0.74rem;
     }
 
     .top-strip {
@@ -564,6 +649,13 @@
       gap: 12px;
     }
 
+    #selectedRate {
+      display: block;
+      font-size: 3rem;
+      line-height: 1;
+      font-weight: 900;
+    }
+
     .pair-title {
       display: flex;
       justify-content: space-between;
@@ -753,7 +845,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      z-index: 20;
+      z-index: 60;
       display: grid;
       place-items: center;
       padding: 18px;
@@ -808,6 +900,10 @@
       gap: 12px;
     }
 
+    .mobile-dock {
+      display: none;
+    }
+
     .empty-state {
       padding: 18px;
       border: 1px dashed var(--line);
@@ -836,17 +932,37 @@
     @media (max-width: 760px) {
       .app-shell {
         width: min(100% - 20px, 1500px);
-        padding-top: 10px;
+        padding: 10px 0 92px;
       }
 
       .app-header {
         grid-template-columns: 1fr;
+        padding: 12px;
       }
 
       .header-actions,
       .control-row,
       .voice-controls {
         justify-content: flex-start;
+      }
+
+      .header-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .header-actions > * {
+        min-width: 0;
+      }
+
+      .header-actions .pill,
+      .header-actions .select,
+      .header-actions .primary {
+        grid-column: 1 / -1;
+      }
+
+      .market-ribbon {
+        margin-top: 10px;
       }
 
       .rate-grid,
@@ -875,6 +991,108 @@
       .chart-box {
         height: 280px;
       }
+
+      .rate-grid {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scroll-snap-type: x mandatory;
+      }
+
+      .rate-card {
+        min-width: min(82vw, 340px);
+        scroll-snap-align: start;
+      }
+
+      table,
+      thead,
+      tbody,
+      tr,
+      td {
+        display: block;
+      }
+
+      table {
+        min-width: 0;
+      }
+
+      thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+      }
+
+      tr {
+        padding: 8px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      tr:last-child {
+        border-bottom: 0;
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 4px;
+        border-bottom: 0;
+        white-space: normal;
+      }
+
+      td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .mobile-dock {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: calc(10px + env(safe-area-inset-bottom));
+        z-index: 30;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+        padding: 7px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(7, 18, 14, 0.92);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      [data-theme="light"] .mobile-dock {
+        background: rgba(255, 255, 255, 0.94);
+      }
+
+      .mobile-dock a {
+        min-height: 48px;
+        display: grid;
+        place-items: center;
+        gap: 2px;
+        border-radius: var(--radius);
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.72rem;
+        font-weight: 900;
+      }
+
+      .mobile-dock a:hover,
+      .mobile-dock a:focus-visible {
+        color: var(--green);
+        background: var(--green-soft);
+      }
+
+      .mobile-dock svg {
+        width: 18px;
+        height: 18px;
+      }
     }
 
     @media (max-width: 520px) {
@@ -891,7 +1109,19 @@
         height: 42px;
       }
 
-      .rate-grid,
+      .brand h1 {
+        font-size: 1.55rem;
+      }
+
+      .tagline,
+      .credit-line {
+        font-size: 0.84rem;
+      }
+
+      .disclaimer-banner {
+        display: grid;
+      }
+
       .metric-grid,
       .plain-grid,
       .strength-grid,
@@ -916,6 +1146,14 @@
       .period-tabs {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .converter-result strong {
+        font-size: 1.55rem;
+      }
+
+      #selectedRate {
+        font-size: 2.25rem;
       }
     }
   </style>
@@ -944,6 +1182,10 @@
         <button class="button primary" id="refreshButton" type="button"><i data-lucide="refresh-cw"></i>Refresh</button>
       </div>
     </header>
+
+    <section class="market-ribbon" id="marketRibbon" aria-label="Market pulse">
+      <span class="ribbon-item"><strong>Market Pulse</strong><span>Loading rates</span></span>
+    </section>
 
     <main class="layout">
       <div class="status-line" id="statusLine" role="status" aria-live="polite"></div>
@@ -1025,7 +1267,7 @@
         </div>
       </section>
 
-      <section class="toolbar" aria-label="Forex dashboard controls">
+      <section class="toolbar" id="tools" aria-label="Forex dashboard controls">
         <article class="panel" aria-labelledby="converterTitle">
           <div class="panel-header">
             <div>
@@ -1084,7 +1326,7 @@
       </section>
 
       <section class="dashboard-grid">
-        <article class="panel" aria-labelledby="ratesTitle">
+        <article class="panel" id="rates" aria-labelledby="ratesTitle">
           <div class="panel-header">
             <div>
               <h2 id="ratesTitle">Global Rate Monitor</h2>
@@ -1095,7 +1337,7 @@
           <div class="rate-grid" id="rateGrid"></div>
         </article>
 
-        <article class="panel analysis-panel" aria-labelledby="analysisTitle">
+        <article class="panel analysis-panel" id="analytics" aria-labelledby="analysisTitle">
           <div class="pair-title">
             <div>
               <h2 id="analysisTitle">Pair Analytics</h2>
@@ -1129,7 +1371,7 @@
         </article>
       </section>
 
-      <section class="panel" aria-labelledby="chartTitle">
+      <section class="panel" id="history" aria-labelledby="chartTitle">
         <div class="panel-header">
           <div>
             <h2 id="chartTitle">Pair History</h2>
@@ -1193,7 +1435,7 @@
         <div class="session-grid" id="sessionGrid"></div>
       </section>
 
-      <section class="panel voice-panel" aria-labelledby="voiceTitle">
+      <section class="panel voice-panel" id="voice" aria-labelledby="voiceTitle">
         <div>
           <h2 id="voiceTitle">Voice Market Brief</h2>
           <p>The voice brief explains the selected pair, recent movement, risk score, data source, and reasons for caution.</p>
@@ -1253,6 +1495,13 @@
       </footer>
     </main>
   </div>
+
+  <nav class="mobile-dock" id="mobileDock" aria-label="Mobile dashboard navigation">
+    <a href="#tools"><i data-lucide="repeat-2"></i><span>Convert</span></a>
+    <a href="#rates"><i data-lucide="activity"></i><span>Rates</span></a>
+    <a href="#history"><i data-lucide="line-chart"></i><span>Chart</span></a>
+    <a href="#voice"><i data-lucide="volume-2"></i><span>Voice</span></a>
+  </nav>
 
   <div class="modal-backdrop" id="methodModal" hidden>
     <section class="method-modal" role="dialog" aria-modal="true" aria-labelledby="methodTitle">
@@ -1422,6 +1671,7 @@
         voiceToggle: document.getElementById("voiceToggle"),
         themeToggle: document.getElementById("themeToggle"),
         refreshButton: document.getElementById("refreshButton"),
+        marketRibbon: document.getElementById("marketRibbon"),
         execProvider: document.getElementById("execProvider"),
         execBestPair: document.getElementById("execBestPair"),
         execOpportunity: document.getElementById("execOpportunity"),
@@ -1748,6 +1998,7 @@
         renderHeader();
         renderPairSelect();
         renderConverter();
+        renderMarketRibbon();
         renderRates();
         renderSelectedPair();
         renderWatchTable();
@@ -1797,6 +2048,27 @@
         }
         elements.conversionResult.textContent = formatMoney(amount * rate, to);
         elements.conversionRate.textContent = "1 " + from + " = " + formatRate(rate) + " " + to;
+      }
+
+      function renderMarketRibbon() {
+        const rows = state.analytics.slice(0, 8);
+        if (!rows.length) {
+          elements.marketRibbon.innerHTML = '<span class="ribbon-item"><strong>Market Pulse</strong><span>Loading rates</span></span>';
+          return;
+        }
+        elements.marketRibbon.innerHTML = rows.map((item) => {
+          const cls = item.change1 > 0 ? "positive" : item.change1 < 0 ? "negative" : "neutral";
+          return [
+            '<button class="ribbon-item" type="button" data-pair="' + escapeHtml(item.pair) + '">',
+            '<strong>' + escapeHtml(item.pair) + "</strong>",
+            '<span>' + formatRate(item.rate) + "</span>",
+            '<em class="change ' + cls + '">' + signedPercent(item.change1) + "</em>",
+            "</button>"
+          ].join("");
+        }).join("");
+        elements.marketRibbon.querySelectorAll("[data-pair]").forEach((button) => {
+          button.addEventListener("click", () => selectPair(button.dataset.pair));
+        });
       }
 
       function renderRates() {
@@ -1870,14 +2142,14 @@
         elements.watchTable.innerHTML = state.analytics.map((item) => {
           return [
             "<tr>",
-            '<td><strong>' + escapeHtml(item.pair) + "</strong></td>",
-            "<td>" + formatRate(item.rate) + "</td>",
-            '<td class="' + (item.change1 >= 0 ? "score-good" : "score-risk") + '">' + signedPercent(item.change1) + "</td>",
-            '<td class="' + (item.change7 >= 0 ? "score-good" : "score-risk") + '">' + signedPercent(item.change7) + "</td>",
-            "<td>" + formatNumber(item.volatility, 2) + "%</td>",
-            '<td class="' + scoreClass(item.risk, true) + '">' + Math.round(item.risk) + "</td>",
-            '<td class="' + scoreClass(item.opportunity, false) + '">' + Math.round(item.opportunity) + "</td>",
-            "<td>" + escapeHtml(item.bias) + "</td>",
+            '<td data-label="Pair"><strong>' + escapeHtml(item.pair) + "</strong></td>",
+            '<td data-label="Rate">' + formatRate(item.rate) + "</td>",
+            '<td data-label="1 Day" class="' + (item.change1 >= 0 ? "score-good" : "score-risk") + '">' + signedPercent(item.change1) + "</td>",
+            '<td data-label="7 Day" class="' + (item.change7 >= 0 ? "score-good" : "score-risk") + '">' + signedPercent(item.change7) + "</td>",
+            '<td data-label="Volatility">' + formatNumber(item.volatility, 2) + "%</td>",
+            '<td data-label="Risk" class="' + scoreClass(item.risk, true) + '">' + Math.round(item.risk) + "</td>",
+            '<td data-label="Momentum" class="' + scoreClass(item.opportunity, false) + '">' + Math.round(item.opportunity) + "</td>",
+            '<td data-label="Bias">' + escapeHtml(item.bias) + "</td>",
             "</tr>"
           ].join("");
         }).join("");
@@ -1974,6 +2246,7 @@
         localStorage.setItem(STORAGE.selectedPair, pair);
         renderHeader();
         renderPairSelect();
+        renderMarketRibbon();
         renderRates();
         renderSelectedPair();
         renderChart();
